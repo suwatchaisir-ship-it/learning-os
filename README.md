@@ -17,7 +17,8 @@
 ### 2. ตั้งค่า API Keys ใน GitHub Secrets
 ไปที่ Repository ของคุณบน GitHub > **Settings** > **Secrets and variables** > **Actions** > สร้าง **New repository secret**:
 * `GEMINI_API_KEY`: ใส่ API Key ของ Gemini (รับฟรีได้ที่ [Google AI Studio](https://aistudio.google.com/))
-* `LINE_NOTIFY_TOKEN`: ใส่ Token ของ LINE Notify (ออก Token ได้ที่ [LINE Notify](https://notify-bot.line.me/my/))
+* `LINE_CHANNEL_ACCESS_TOKEN`: ใส่ Channel Access Token จาก [LINE Developers](https://developers.line.biz/) (LINE Messaging API)
+* `LINE_TARGET_ID`: ใส่ User ID ของคุณ หรือ Group ID ของกลุ่ม LINE ที่ต้องการให้บอทส่งข้อความไป (ดูได้จาก Webhook event หรือในหน้าตั้งค่า Basic settings ของ LINE Developers)
 
 ### 3. (Optional) ตั้งค่าแหล่งข่าว
 คุณสามารถเข้าไปแก้ไฟล์ `config.json` เพื่อเพิ่มหรือลดแหล่งข่าว RSS (เช่น ข่าวเทคโนโลยี, บล็อกของบริษัทที่คุณติดตาม) ได้ตามต้องการ

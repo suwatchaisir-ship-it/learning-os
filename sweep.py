@@ -10,7 +10,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-LINE_NOTIFY_TOKEN = os.getenv("LINE_NOTIFY_TOKEN")
+LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
+LINE_TARGET_ID = os.getenv("LINE_TARGET_ID")
 
 # Initialize Gemini API
 if GEMINI_API_KEY:
@@ -80,25 +81,34 @@ def save_to_markdown(content):
     print(f"Saved digest to {filename}")
     return filename
 
-def send_line_notify(message):
-    if not LINE_NOTIFY_TOKEN:
-        print("Warning: LINE_NOTIFY_TOKEN not found. Notification skipped.")
+def send_line_message(message):
+    if not LINE_CHANNEL_ACCESS_TOKEN or not LINE_TARGET_ID:
+        print("Warning: LINE credentials not found. Notification skipped.")
         return
         
-    url = "https://notify-api.line.me/api/notify"
+    url = "https://api.line.me/v2/bot/message/push"
     headers = {
-        "Authorization": f"Bearer {LINE_NOTIFY_TOKEN}"
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {LINE_CHANNEL_ACCESS_TOKEN}"
     }
     payload = {
-        "message": message
+        "to": LINE_TARGET_ID,
+        "messages": [
+            {
+                "type": "text",
+                "text": message
+            }
+        ]
     }
     
     try:
-        response = requests.post(url, headers=headers, data=payload)
+        response = requests.post(url, headers=headers, json=payload)
         response.raise_for_status()
         print("Successfully sent LINE notification")
     except Exception as e:
         print(f"Error sending LINE notification: {e}")
+        if 'response' in locals():
+            print(f"Response: {response.text}")
 
 def main():
     print("Starting Learning OS daily sweep...")
@@ -115,7 +125,7 @@ def main():
     
     # 4. Notify LINE
     notify_msg = f"\n✅ สรุปข่าวประจำวันเสร็จแล้วครับ!\nมีข่าวทั้งหมด {len(articles)} เรื่อง\nเข้าไปอ่านแบบเต็มๆ ได้ที่ GitHub ของคุณเลยครับ"
-    send_line_notify(notify_msg)
+    send_line_message(notify_msg)
     
     print("Sweep complete!")
 
