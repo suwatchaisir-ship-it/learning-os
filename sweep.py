@@ -66,6 +66,17 @@ def summarize_with_ai(articles):
         print(f"Error generating summary: {e}")
         return f"Error generating summary: {e}"
 
+def generate_line_summary(full_summary):
+    if not model:
+         return ""
+    prompt = f"จากสรุปข่าวด้านล่างนี้ ช่วยเขียนข้อความสั้นๆ เพื่อส่งเข้าแชท LINE โดยสรุปใจความสำคัญของแต่ละข่าวให้สั้นและเข้าใจง่ายที่สุด (ใช้ emoji นำหน้าแต่ละข่าวให้สวยงามน่าอ่าน) ความยาวรวมไม่เกิน 1000 ตัวอักษร ห้ามยาวเกินไป:\n\n{full_summary}"
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        print(f"Error generating LINE summary: {e}")
+        return ""
+
 def save_to_markdown(content):
     date_str = datetime.datetime.now().strftime("%Y-%m-%d")
     filename = f"vault/inbox/{date_str}-digest.md"
@@ -123,8 +134,16 @@ def main():
     # 3. Save to Markdown
     saved_file = save_to_markdown(ai_summary)
     
-    # 4. Notify LINE
-    notify_msg = f"\n✅ สรุปข่าวประจำวันเสร็จแล้วครับ!\nมีข่าวทั้งหมด {len(articles)} เรื่อง\nเข้าไปอ่านแบบเต็มๆ ได้ที่ GitHub ของคุณเลยครับ"
+    # 4. Generate LINE summary
+    line_summary = generate_line_summary(ai_summary)
+    github_url = "https://github.com/suwatchaisir-ship-it/learning-os/tree/main/vault/inbox"
+    
+    # 5. Notify LINE
+    if line_summary:
+        notify_msg = f"✅ สรุปข่าวประจำวันมาแล้วครับ!\n\n{line_summary}\n\n👉 อ่านแบบเต็มๆ พร้อมลิงก์ต้นฉบับได้ที่:\n{github_url}"
+    else:
+        notify_msg = f"✅ สรุปข่าวประจำวันมาแล้วครับ!\nมีข่าวทั้งหมด {len(articles)} เรื่อง\n👉 เข้าไปอ่านแบบเต็มๆ ได้ที่ GitHub ของคุณเลยครับ:\n{github_url}"
+        
     send_line_message(notify_msg)
     
     print("Sweep complete!")
