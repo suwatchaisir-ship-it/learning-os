@@ -32,5 +32,5 @@ git config --global user.name "github-actions[bot]"
 git config --global user.email "41898282+github-actions[bot]@users.noreply.github.
 com"
 git add vault/inbox/
-git diff --quiet && git diff --staged --quiet || (git commit -m "chore(sweep): daily
-digest $(date +'%Y-%m-%d')" && git push)
+git diff --quiet && git diff --staged --quiet || (git commit -m "chore(sweep):
+daily digest $(date +'%Y-%m-%d')" && git push)
