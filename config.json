@@ -1,0 +1,13 @@
+{
+  "feeds": [
+    {
+      "name": "The Verge - Tech",
+      "url": "https://www.theverge.com/rss/index.xml"
+    },
+    {
+      "name": "TechCrunch",
+      "url": "https://techcrunch.com/feed/"
+    }
+  ],
+  "max_items_per_feed": 3
+}
