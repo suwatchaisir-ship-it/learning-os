@@ -110,32 +110,31 @@ def send_line_message(message):
         if 'response' in locals():
             print(f"Response: {response.text}")
 
-def generate_line_message_with_ai(articles, dashboard_url):
+def translate_to_thai(text):
+    try:
+        url = "https://translate.googleapis.com/translate_a/single"
+        params = {
+            "client": "gtx",
+            "sl": "en",
+            "tl": "th",
+            "dt": "t",
+            "q": text
+        }
+        response = requests.get(url, params=params, timeout=5)
+        if response.status_code == 200:
+            return response.json()[0][0][0]
+    except Exception as e:
+        print(f"Translation error: {e}")
+    return text
+
+def generate_line_message_translated(articles, dashboard_url):
     date_str = datetime.datetime.now().strftime("%Y-%m-%d")
     base_msg = f"✅ สรุปข่าวประจำวันมาแล้วครับ! ({len(articles)} เรื่อง)\n\n"
     
-    if not model:
-        for art in articles:
-            base_msg += f"🔹 {art['title']}\n"
-    else:
-        print("Generating Thai titles for LINE...")
-        time.sleep(5) # Prevent rate limiting between AI calls
-        prompt = "คุณคือเลขา AI ให้แปลหัวข้อข่าวภาษาอังกฤษต่อไปนี้เป็นภาษาไทยให้สั้นกระชับ สละสลวย เพื่อส่งเข้า LINE ให้เจ้านายอ่าน:\n\n"
-        for art in articles:
-            prompt += f"- {art['title']}\n"
-        prompt += "\nส่งกลับมาเฉพาะหัวข้อข่าวภาษาไทยที่มีอีโมจิ 🔹 นำหน้าแต่ละบรรทัดเรียงลงมาเลย ห้ามมีคำเกริ่นนำใดๆ"
-        
-        try:
-            response = model.generate_content(prompt)
-            thai_text = response.text.strip()
-            if thai_text:
-                base_msg += thai_text + "\n"
-            else:
-                raise ValueError("Empty response text")
-        except Exception as e:
-            print(f"Error generating Thai titles: {e}")
-            for art in articles:
-                base_msg += f"🔹 {art['title']}\n"
+    print("Translating titles for LINE...")
+    for art in articles:
+        thai_title = translate_to_thai(art['title'])
+        base_msg += f"🔹 {thai_title}\n"
                 
     base_msg += f"\n👉 อ่านข่าวเต็มๆ ในหน้า Dashboard สวยๆ ได้ที่:\n{dashboard_url}"
     return base_msg
@@ -155,7 +154,7 @@ def main():
     
     # 4. Generate LINE summary (Translated to Thai)
     dashboard_url = "https://newton-denny-ebook.incomeinclick.in.th/learning-os/"
-    notify_msg = generate_line_message_with_ai(articles, dashboard_url)
+    notify_msg = generate_line_message_translated(articles, dashboard_url)
         
     # 5. Notify LINE
     send_line_message(notify_msg)
